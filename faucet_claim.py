@@ -1,31 +1,44 @@
 #!/usr/bin/env python3
-import sys, yaml, requests
+import sys, time, requests, yaml
 from pathlib import Path
 
 CFG = yaml.safe_load(Path("config.yaml").read_text())
-f = CFG.get("faucet",{})
+F = CFG.get("faucet", {})
 
-def main(addr):
-    if not f.get("enabled", False):
-        print("Faucet disabled. (Enable in config.yaml if you have API endpoint)")
-        return 0
-    url = f.get("url"); method = f.get("method","POST").upper()
-    field = f.get("address_field","address")
-    payload = dict(f.get("extra_payload",{})); payload[field]=addr
-    headers = dict(f.get("extra_headers",{}))
+def claim_once(address: str) -> bool:
+    url = F.get("url"); method = (F.get("method","POST") or "POST").upper()
+    field = F.get("address_field","address")
+    headers = dict(F.get("extra_headers",{}) or {})
+    payload = dict(F.get("extra_payload",{}) or {})
+    payload[field] = address
     try:
-        if method=="POST":
+        if method == "POST":
             r = requests.post(url, json=payload, headers=headers, timeout=20)
         else:
             r = requests.get(url, params=payload, headers=headers, timeout=20)
-        print("Faucet resp:", r.status_code, r.text[:300])
-        return 0 if r.ok else 2
+        print("Faucet resp:", r.status_code, (r.text or "")[:200])
+        return r.ok
     except Exception as e:
         print("Faucet error:", e)
-        return 2
+        return False
+
+def claim_with_retries(address: str) -> bool:
+    if not F.get("enabled", True):
+        print("Faucet disabled in config.")
+        return False
+    retries = int(F.get("max_retries", 3))
+    waitsec = int(F.get("wait_seconds", 6))
+    for i in range(1, retries+1):
+        print(f"[FAUCET] request {i}/{retries} → {address}")
+        ok = claim_once(address)
+        if ok:
+            return True
+        time.sleep(waitsec)
+    return False
 
 if __name__=="__main__":
     if len(sys.argv)<2:
         print("Usage: python3 faucet_claim.py <address>")
         sys.exit(1)
-    sys.exit(main(sys.argv[1]))
+    ok = claim_with_retries(sys.argv[1])
+    sys.exit(0 if ok else 2)
