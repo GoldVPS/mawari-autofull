@@ -1,0 +1,36 @@
+# RPC & chain
+rpc_url: "https://mawari-testnet.rpc.caldera.xyz/http"
+chain_id: 576
+
+# Kontrak
+# Token native dipakai untuk pembayaran mint & funding; token_contract tidak digunakan di flow ini (opsional)
+token_contract: "0xPUT_TOKEN_ADDRESS_HERE"
+nft_contract: "0x158752a787bBac275d0096b6292D7e2da411876D"
+delegation_hub: "0x5721fc62C7348790bcF58d3a3165a3bbbfCBc1BA"
+
+# Faucet (matikan jika pakai CAPTCHA)
+faucet:
+  enabled: false
+  url: ""                  # isi jika ada endpoint faucet API
+  method: "POST"
+  address_field: "address"
+  extra_headers: {}
+  extra_payload: {}
+
+# Mint settings
+mint:
+  function: "purchaseNFT"      # dari input data: purchaseNFT(uint256)
+  expects_to_address: false
+  count: 3
+  price_native_per_nft: "0.1"  # 0.3 MAWARI untuk 3 NFT => 0.1 per NFT
+
+# Native MAWARI untuk burner per node
+fund_each: "1"
+
+# Docker image
+docker_image: "us-east4-docker.pkg.dev/mawarinetwork-dev/mwr-net-d-car-uses4-public-docker-registry-e62e/mawari-node:latest"
+
+# Keys (PAKAI WALLET BARU SAJA)
+owner_private_key: ""   # PK untuk mint + approve + delegate
+fund_private_key: ""    # PK untuk kirim native ke burner (boleh sama dengan owner PK)
+owner_address: ""       # opsional, jika kosong akan didapat dari owner_private_key
