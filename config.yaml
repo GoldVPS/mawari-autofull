@@ -3,37 +3,25 @@ rpc_url: "https://mawari-testnet.rpc.caldera.xyz/http"
 chain_id: 576
 
 # --- Contracts ---
-token_contract: ""   # tidak dipakai (mint & fund pakai native)
 nft_contract: "0x158752a787bBac275d0096b6292D7e2da411876D"
 delegation_hub: "0x5721fc62C7348790bcF58d3a3165a3bbbfCBc1BA"
-
-# --- Faucet (NO CAPTCHA assumed) ---
-# Jika endpoint beda, ganti url/method/field di sini.
-faucet:
-  enabled: true
-  url: "https://hub.testnet.mawari.net/"  # <- ganti jika endpoint lain
-  method: "POST"            # "POST" atau "GET"
-  address_field: "address"  # nama field address di body/query
-  extra_headers: {}
-  extra_payload: {}
-  max_retries: 3
-  wait_seconds: 6           # jeda antar-claim & polling saldo
-
-# --- Mint settings (native MAWARI) ---
-mint:
-  function: "purchaseNFT"
-  count: 3
-  price_native_per_nft: "0.1"   # total=0.3 untuk 3 NFT
-  gas_buffer_native: "0.05"     # buffer gas supaya approve+delegate aman
-
-# --- Burner funding (via faucet dulu; fallback transfer dari owner) ---
-burner_min_native: "0.5"        # saldo minimal burner setelah claim (untuk heartbeat/tx)
-owner_fallback_transfer: true   # kalau faucet ke burner gagal → kirim dari owner
-owner_fallback_amount: "1"      # jumlah kirim dari owner saat fallback
 
 # --- Docker image ---
 docker_image: "us-east4-docker.pkg.dev/mawarinetwork-dev/mwr-net-d-car-uses4-public-docker-registry-e62e/mawari-node:latest"
 
-# --- Keys (PAKAI WALLET BARU) ---
-owner_private_key: ""   # untuk mint + approve + delegate + fallback transfer
-owner_address: ""       # opsional; kalau kosong, di-derive dari PK
+# --- Wallets ---
+owner_private_key: ""     # PK untuk approve + delegate + fund burner
+owner_address: ""         # opsional; kalau kosong di-derive dari PK
+
+# --- Auto discover tokenIds dari mint manual ---
+auto_discover_token_ids: true
+discovery:
+  window_blocks: 50000     # scan 50k blok terakhir; ubah kalau perlu
+  include_mints_only: false  # kalau true, hanya ambil Transfer dari address 0x0
+
+# --- (opsional) tokenIds statik; diabaikan kalau auto_discover true dan ada hasil ---
+token_ids: []
+
+# --- Funding burner dari owner ---
+min_burner_balance: "0.5"     # kalau saldo burner < nilai ini → kirim
+fund_burner_amount: "1"       # jumlah native MAWARI dari owner ke burner
