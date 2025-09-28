@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_DIR="${REPO_DIR:-$HOME/mawari-guardian-from-zero}"
+REPO_DIR="${REPO_DIR:-$HOME/mawari-autofull}"
 CONTAINER="mawari_worker1"
 
 banner() { echo -e "\n==== $* ====\n"; }
