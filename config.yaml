@@ -11,7 +11,7 @@ delegation_hub: "0x5721fc62C7348790bcF58d3a3165a3bbbfCBc1BA"
 # Jika endpoint beda, ganti url/method/field di sini.
 faucet:
   enabled: true
-  url: "https://hub.testnet.mawari.net/api/faucet"  # <- ganti jika endpoint lain
+  url: "https://hub.testnet.mawari.net/"  # <- ganti jika endpoint lain
   method: "POST"            # "POST" atau "GET"
   address_field: "address"  # nama field address di body/query
   extra_headers: {}
