@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, sys, json, yaml, time
+import sys, json, time, yaml
 from pathlib import Path
 from web3 import Web3
 from eth_account import Account
@@ -18,9 +18,6 @@ def main():
     func = cfg["mint"]["function"]
     price = float(cfg["mint"].get("price_native_per_nft","0"))
     pk = cfg["owner_private_key"]
-    if not (rpc and nft_addr and pk):
-        print("Missing rpc/nft_contract/owner_private_key")
-        sys.exit(2)
 
     w3 = Web3(Web3.HTTPProvider(rpc))
     acct = Account.from_key(pk)
@@ -39,9 +36,9 @@ def main():
     h = w3.to_hex(txh)
     print("Mint tx:", h)
     print("Waiting for receipt...")
-    rec = w3.eth.wait_for_transaction_receipt(h, timeout=240)
+    rec = w3.eth.wait_for_transaction_receipt(h, timeout=300)
 
-    # parse ERC721 Transfer to collect tokenIds
+    # Parse Transfer events → tokenIds
     token_ids = []
     try:
         ev_transfer = nft.events.Transfer()
@@ -59,8 +56,12 @@ def main():
         Path("minted_ids.json").write_text(json.dumps(token_ids, indent=2))
         print("Minted tokenIds:", token_ids)
     else:
-        print("No tokenIds parsed; provide them manually later.")
+        print("No tokenIds parsed; will require manual tokenIds.")
     time.sleep(3)
 
 if __name__=="__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print("Mint error:", repr(e))
+        sys.exit(2)
